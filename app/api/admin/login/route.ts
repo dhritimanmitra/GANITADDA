@@ -1,0 +1,4 @@
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { createAdminSession } from '@/lib/auth';
+export async function POST(req:Request){try{const {email,password}=await req.json();const expectedEmail=process.env.ADMIN_EMAIL;const hash=process.env.ADMIN_PASSWORD_HASH;if(!expectedEmail||!hash)return NextResponse.json({error:'Admin credentials are not configured.'},{status:503});const validEmail=String(email||'').toLowerCase()===expectedEmail.toLowerCase();const validPassword=await bcrypt.compare(String(password||''),hash);if(!validEmail||!validPassword)return NextResponse.json({error:'Incorrect email or password.'},{status:401});await createAdminSession();return NextResponse.json({ok:true});}catch(e){console.error(e);return NextResponse.json({error:'Unable to sign in.'},{status:500});}}
